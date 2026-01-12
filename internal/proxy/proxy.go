@@ -10,11 +10,11 @@ import (
 )
 
 type ReverseProxy struct {
-	// Routes is a hash map of key string holding a slice of strings, each
+	// Routes is a hash map compose of a key string and a slice of strings, each
 	// string need to represent an endpoint/service, so if you have more than
 	// one replica running, it should be on this map.
 	//
-	// It uses a Load Balancer to choose each service gets the request, the
+	// It uses a Load Balancer to choose what service gets the request, the
 	// LB implementation is done via round robin.
 	routes map[string][]string
 	id     *uint64
@@ -29,6 +29,7 @@ func NewReverseProxy() *ReverseProxy {
 	return &ReverseProxy{
 		routes: map[string][]string{
 			"/todos/": {
+				// The simplicity here is just for demonstration...
 				"https://jsonplaceholder.typicode.com",
 				"https://jsonplaceholder.typicode.com",
 				"https://jsonplaceholder.typicode.com",
@@ -38,6 +39,8 @@ func NewReverseProxy() *ReverseProxy {
 	}
 }
 
+// getService uses a Round Robin algorithm to choose what gonna take the request
+// and give it back a string and a boolean if none.
 func (rp *ReverseProxy) getService(path string) (string, bool) {
 	val, ok := rp.routes[path]
 	if !ok || len(val) == 0 {
@@ -114,3 +117,4 @@ func RoundRobin(src []string, id *uint64) string {
 	idx := atomic.AddUint64(id, 1)
 	return src[idx%uint64(len(src))]
 }
+
